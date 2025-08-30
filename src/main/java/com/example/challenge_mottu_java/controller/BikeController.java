@@ -5,6 +5,7 @@ import com.example.challenge_mottu_java.dto.PendingDTO;
 import com.example.challenge_mottu_java.model.Bike;
 import com.example.challenge_mottu_java.repository.BikeRepository;
 
+import com.example.challenge_mottu_java.service.BikeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
@@ -25,23 +26,26 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("bike")
+@RequestMapping("/bike")
 public class BikeController {
 
     private Logger log = LoggerFactory.getLogger(getClass());
+    private final BikeService bikeService;
 
-    @Autowired
-    private BikeRepository bikeRepository;
+    public BikeController(BikeService bikeService) {
+        this.bikeService = bikeService;
+    }
 
-    @GetMapping("{placa}")
+    @GetMapping("/{placa}")
     public ResponseEntity<BikeDTO> getBikeByPlaca(@PathVariable String placa) {
-        log.info("Buscando moto com placa: {}", placa);
-
-        Bike bike = bikeRepository.findById(placa)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Moto não encontrada"));
-
-        BikeDTO dto = toDTO(bike);
-        return ResponseEntity.ok(dto);
+        try {
+            log.info("Buscando moto com placa: {}", placa);
+            BikeDTO bikeDTO = bikeService.getBikeByPlaca(placa);
+            return ResponseEntity.ok(bikeDTO);
+        }catch (ResponseStatusException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping
@@ -50,49 +54,39 @@ public class BikeController {
             @ApiResponse(responseCode = "201"),
             @ApiResponse(responseCode = "400"),
     })
-    public ResponseEntity<Bike> create(@RequestBody @Valid Bike bike) {
-        log.info("Cadastrando moto: ", bike.getPlaca());
-        bikeRepository.save(bike);
-        return ResponseEntity.status(HttpStatus.CREATED).body(bike);
+    public ResponseEntity<BikeDTO> create(@RequestBody @Valid Bike bike) {
+        try {
+            log.info("Cadastrando moto: ", bike.getPlaca());
+            BikeDTO bikeDTO = bikeService.createBike(bike);
+            return ResponseEntity.status(HttpStatus.CREATED).body(bikeDTO);
+        }catch (ResponseStatusException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
     }
 
-    @DeleteMapping("{placa}")
+    @DeleteMapping("/{placa}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void destroy(@PathVariable String placa) {
-        log.info("Apagando moto {}", placa);
-        Bike bike = bikeRepository.findById(placa)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Moto não encontrada"));
-        bikeRepository.delete(bike);
+    public ResponseEntity<Void> destroy(@PathVariable String placa) {
+        try {
+            log.info("Apagando moto {}", placa);
+            bikeService.deleteBike(placa);
+            return ResponseEntity.noContent().build();
+        }catch (ResponseStatusException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.noContent().build();
+        }
     }
 
-    @PutMapping("{placa}")
-    public ResponseEntity<Bike> update(@PathVariable String placa, @RequestBody @Valid Bike bike) {
-        log.info("Atualizando moto: {}", placa);
-
-        bikeRepository.findById(placa)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Moto não encontrada"));
-
-        bike.setPlaca(placa);
-        bikeRepository.save(bike);
-
-        return ResponseEntity.ok(bike);
-    }
-
-    private BikeDTO toDTO(Bike bike) {
-        List<PendingDTO> pendencias = bike.getPendencias().stream()
-                .map(p -> new PendingDTO(
-                        p.getId(),
-                        p.getNumber(),
-                        p.getDescription(),
-                        p.getStatus(),
-                        p.getBike() != null ? p.getBike().getPlaca() : null))
-                .collect(Collectors.toList());
-
-        return new BikeDTO(
-                bike.getPlaca(),
-                bike.getStatus(),
-                pendencias,
-                bike.getModelo(),
-                bike.getLocalizacao());
+    @PutMapping("/{placa}")
+    public ResponseEntity<BikeDTO> update(@PathVariable String placa, @RequestBody @Valid Bike bike) {
+        try {
+            log.info("Atualizando moto: {}", placa);
+            BikeDTO bikeDTO = bikeService.updateBike(placa, bike);
+            return ResponseEntity.ok(bikeDTO);
+        }catch (ResponseStatusException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
     }
 }

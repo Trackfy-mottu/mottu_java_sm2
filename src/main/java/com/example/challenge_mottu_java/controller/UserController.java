@@ -42,7 +42,7 @@ public class UserController {
     }
 
     @PostMapping()
-    public ResponseEntity<UserDTO> createUser(User user) {
+    public ResponseEntity<UserDTO> createUser(@RequestBody @Valid User user) {
         UserDTO newUser = userService.createUser(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
     }
@@ -56,10 +56,10 @@ public class UserController {
         return "redirect:/task";
     }
 
-    @PutMapping("/username")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable String username){
+    @PutMapping("/{username}")
+    public ResponseEntity<UserDTO> updateUser(@PathVariable String username, @RequestBody @Valid User newUser) {
         try {
-            UserDTO user =  userService.updateUser(username);
+            UserDTO user =  userService.updateUser(username, newUser);
             return ResponseEntity.ok(user);
         }catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
@@ -67,7 +67,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<UserDTO> deleteUser(@PathVariable Long id){
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id){
         try {
             userService.deleteUser(id);
             return ResponseEntity.noContent().build();

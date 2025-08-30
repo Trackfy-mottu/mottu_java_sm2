@@ -20,19 +20,17 @@ public class UserService {
     }
 
     public UserDTO createUser(User user) {
+        User existingUser = userRepository.findByUsernameIgnoreCase(user.getUsername()).orElse(null);
+        if (existingUser != null) throw new RuntimeException("Email ou senha inválidos");
         userRepository.save(user);
         return new UserDTO(user.getId(), user.getUsername(), user.getName(), user.getRole());
     }
 
-    public UserDTO updateUser(String username) {
+    public UserDTO updateUser(String username, User newUser) {
         User oldUser = userRepository.findByUsernameIgnoreCase(username).orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
-
-        oldUser.setUsername(oldUser.getUsername());
-        oldUser.setPassword(oldUser.getPassword());
-        oldUser.setName(oldUser.getName());
-
-        userRepository.save(oldUser);
-        return new UserDTO(oldUser.getId(), oldUser.getUsername(), oldUser.getName(), oldUser.getRole());
+        newUser.setId(oldUser.getId());
+        userRepository.save(newUser);
+        return new UserDTO(newUser.getId(), newUser.getUsername(), newUser.getName(), newUser.getRole());
     }
 
     public void deleteUser(Long userId ) {

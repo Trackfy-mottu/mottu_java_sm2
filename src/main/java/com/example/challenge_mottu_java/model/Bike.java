@@ -46,7 +46,4 @@ public class Bike {
     @Size(max = 100, message = "O nome do pátio deve ter no máximo 100 caracteres")
     private String patio;
 
-    @Min(value = 1, message = "O id do usuário deve ser maior que 0")
-    private Long idUsuario;
-
 }

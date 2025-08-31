@@ -1,6 +1,7 @@
 package com.example.challenge_mottu_java.model;
 
 import com.example.challenge_mottu_java.Enums.RolesUser;
+import com.example.challenge_mottu_java.dto.CourtDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -40,5 +41,15 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private RolesUser role;
+
+    private CourtDTO courtToDTO(Court court) {
+        return new CourtDTO(
+                court.getAcessCode(),
+                court.getName(),
+                court.getAddress(),
+                court.getMaxCapacity(),
+                court.getCurrentBikes()
+        );
+    }
 
 }

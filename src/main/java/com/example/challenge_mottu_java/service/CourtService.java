@@ -19,8 +19,14 @@ public class CourtService {
 
     public List<CourtDTO> getAllCourts() {
         return courtRepository.findAll().stream()
-                .map(this::mapToDTO)
+                .map(this::toDTO)
                 .collect(Collectors.toList());
+    }
+
+    public CourtDTO getCourtByAcessCode(String acessCode) {
+        Court court = courtRepository.findByAcessCode(acessCode)
+                .orElseThrow(() -> new RuntimeException("Pátio não encontrado!"));
+        return toDTO(court);
     }
 
     public CourtDTO createCourt(Court court) {
@@ -30,7 +36,7 @@ public class CourtService {
         if (court.getCurrentBikes() == null) court.setCurrentBikes(0);
 
         Court savedCourt = courtRepository.save(court);
-        return mapToDTO(savedCourt);
+        return toDTO(savedCourt);
     }
 
     public CourtDTO updateCourt(String acessCode, Court newCourt) {
@@ -39,7 +45,7 @@ public class CourtService {
 
         newCourt.setAcessCode(oldCourt.getAcessCode());
         Court savedCourt = courtRepository.save(newCourt);
-        return mapToDTO(savedCourt);
+        return toDTO(savedCourt);
     }
 
     public void deleteCourt(String acessCode) {
@@ -58,10 +64,10 @@ public class CourtService {
 
         court.setCurrentBikes(newBikeCount);
         Court savedCourt = courtRepository.save(court);
-        return mapToDTO(savedCourt);
+        return toDTO(savedCourt);
     }
 
-    private CourtDTO mapToDTO(Court court) {
+    private CourtDTO toDTO(Court court) {
         return new CourtDTO(
                 court.getAcessCode(),
                 court.getName(),

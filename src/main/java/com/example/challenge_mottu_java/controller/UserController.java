@@ -4,6 +4,8 @@ import com.example.challenge_mottu_java.dto.UserDTO;
 import com.example.challenge_mottu_java.model.User;
 import com.example.challenge_mottu_java.service.UserService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
@@ -20,6 +22,7 @@ public class UserController {
 
     private final UserService userService;
     private final MessageSource messageSource;
+    Logger log = LoggerFactory.getLogger(PendingController.class);
 
     public UserController(UserService userService, MessageSource messageSource) {
         this.userService = userService;
@@ -32,6 +35,7 @@ public class UserController {
             UserDTO user = userService.getUserByUsername(username);
             return ResponseEntity.ok(user);
         }catch (RuntimeException e) {
+            log.error(e.getMessage());
             return ResponseEntity.notFound().build();
         }
     }
@@ -43,8 +47,13 @@ public class UserController {
 
     @PostMapping()
     public ResponseEntity<UserDTO> createUser(@RequestBody @Valid User user) {
-        UserDTO newUser = userService.createUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+        try {
+            UserDTO newUser = userService.createUser(user);
+            return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+        }catch (RuntimeException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @PostMapping("/form")
@@ -62,6 +71,7 @@ public class UserController {
             UserDTO user =  userService.updateUser(username, newUser);
             return ResponseEntity.ok(user);
         }catch (RuntimeException e) {
+            log.error(e.getMessage());
             return ResponseEntity.notFound().build();
         }
     }
@@ -72,6 +82,7 @@ public class UserController {
             userService.deleteUser(id);
             return ResponseEntity.noContent().build();
         }catch (RuntimeException e) {
+            log.error(e.getMessage());
             return ResponseEntity.notFound().build();
         }
     }

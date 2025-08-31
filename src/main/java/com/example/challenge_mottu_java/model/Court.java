@@ -1,5 +1,6 @@
 package com.example.challenge_mottu_java.model;
 
+import com.example.challenge_mottu_java.dto.CourtDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -39,5 +40,15 @@ public class Court {
     @Builder.Default
     @Column(name = "current_bikes")
     private Integer currentBikes = 0;
+
+    public CourtDTO courtToDTO() {
+        return new CourtDTO(
+                this.acessCode,
+                this.name,
+                this.address,
+                this.maxCapacity,
+                this.currentBikes
+        );
+    }
 
 }

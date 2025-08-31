@@ -4,6 +4,8 @@ import com.example.challenge_mottu_java.dto.CourtDTO;
 import com.example.challenge_mottu_java.model.Court;
 import com.example.challenge_mottu_java.service.CourtService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
@@ -21,12 +23,22 @@ public class CourtController {
 
     private final CourtService courtService;
     private final MessageSource messageSource;
+    Logger log = LoggerFactory.getLogger(getClass());
 
     public CourtController(CourtService courtService, MessageSource messageSource) {
         this.courtService = courtService;
         this.messageSource = messageSource;
     }
 
+    @GetMapping("/{acessCode}")
+    public ResponseEntity<CourtDTO> getCourtByAcessCode(@PathVariable String acessCode) {
+        try {
+            return ResponseEntity.ok(courtService.getCourtByAcessCode(acessCode));
+        }catch (Exception e){
+            log.error(e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
+    }
 
     @GetMapping("/all")
     public ResponseEntity<List<CourtDTO>> getAllCourts() {
@@ -45,6 +57,7 @@ public class CourtController {
             CourtDTO newCourt = courtService.createCourt(court);
             return ResponseEntity.status(HttpStatus.CREATED).body(newCourt);
         } catch (RuntimeException e) {
+            log.error(e.getMessage());
             return ResponseEntity.badRequest().build();
         }
     }
@@ -64,12 +77,13 @@ public class CourtController {
         }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{acessCode}")
     public ResponseEntity<CourtDTO> updateCourt(@PathVariable String acessCode, @RequestBody @Valid Court newCourt) {
         try {
             CourtDTO court = courtService.updateCourt(acessCode, newCourt);
             return ResponseEntity.ok(court);
         } catch (RuntimeException e) {
+            log.error(e.getMessage());
             return ResponseEntity.notFound().build();
         }
     }
@@ -80,6 +94,7 @@ public class CourtController {
             courtService.deleteCourt(acessCode);
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
+            log.error(e.getMessage());
             return ResponseEntity.notFound().build();
         }
     }

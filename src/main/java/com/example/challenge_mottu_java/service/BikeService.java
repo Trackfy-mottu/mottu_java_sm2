@@ -66,6 +66,7 @@ public class BikeService {
                 bike.getStatus(),
                 pendencias,
                 bike.getModelo(),
+                bike.getCourt().courtToDTO(),
                 bike.getLocalizacao());
     }
 

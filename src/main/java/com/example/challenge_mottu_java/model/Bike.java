@@ -6,10 +6,7 @@ import com.example.challenge_mottu_java.Enums.LocationBike;
 import com.example.challenge_mottu_java.Enums.ModelsBike;
 import com.example.challenge_mottu_java.Enums.StatusBike;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -43,7 +40,8 @@ public class Bike {
     @NotNull(message = "O modelo da moto é obrigatório")
     private ModelsBike modelo;
 
-    @Size(max = 100, message = "O nome do pátio deve ter no máximo 100 caracteres")
-    private String patio;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "court_acess_code", referencedColumnName = "acess_code")
+    private Court court;
 
 }

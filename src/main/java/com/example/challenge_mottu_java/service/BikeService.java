@@ -17,9 +17,11 @@ import java.util.stream.Collectors;
 public class BikeService {
 
     private final BikeRepository bikeRepository;
+    private final CourtService courtService;
 
-    public BikeService(BikeRepository bikeRepository) {
+    public BikeService(BikeRepository bikeRepository, CourtService courtService) {
         this.bikeRepository = bikeRepository;
+        this.courtService = courtService;
     }
 
     public BikeDTO getBikeByPlaca(String placa){
@@ -30,6 +32,7 @@ public class BikeService {
 
     public BikeDTO createBike(Bike bike){
         bikeRepository.save(bike);
+        courtService.updateBikeCount(bike.getCourt().getAcessCode(), bike.getCourt().getCurrentBikes() + 1);
         return toDTO(bike);
     }
 

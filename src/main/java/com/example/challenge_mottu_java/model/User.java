@@ -11,6 +11,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Data
@@ -18,7 +24,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "USERS")
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,14 +48,9 @@ public class User {
     @Enumerated(EnumType.STRING)
     private RolesUser role;
 
-    private CourtDTO courtToDTO(Court court) {
-        return new CourtDTO(
-                court.getAcessCode(),
-                court.getName(),
-                court.getAddress(),
-                court.getMaxCapacity(),
-                court.getCurrentBikes()
-        );
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role.toString()));
     }
 
 }

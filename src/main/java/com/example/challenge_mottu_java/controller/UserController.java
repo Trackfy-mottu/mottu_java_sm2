@@ -1,7 +1,9 @@
 package com.example.challenge_mottu_java.controller;
 
 import com.example.challenge_mottu_java.dto.UserDTO;
+import com.example.challenge_mottu_java.model.Token;
 import com.example.challenge_mottu_java.model.User;
+import com.example.challenge_mottu_java.service.TokenService;
 import com.example.challenge_mottu_java.service.UserService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -10,6 +12,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -22,11 +25,15 @@ public class UserController {
 
     private final UserService userService;
     private final MessageSource messageSource;
+    private final TokenService tokenService;
+    private final PasswordEncoder passwordEncoder;
     Logger log = LoggerFactory.getLogger(PendingController.class);
 
-    public UserController(UserService userService, MessageSource messageSource) {
+    public UserController(UserService userService, MessageSource messageSource, TokenService tokenService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.messageSource = messageSource;
+        this.tokenService = tokenService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping("/{username}")
@@ -45,11 +52,12 @@ public class UserController {
         return "form";
     }
 
-    @PostMapping()
-    public ResponseEntity<UserDTO> createUser(@RequestBody @Valid User user) {
-        try {
-            UserDTO newUser = userService.createUser(user);
-            return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+    @PostMapping
+    public ResponseEntity<Token> create(@RequestBody @Valid User user) {
+        try{
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            User savedUser = userService.createUser(user);
+            return ResponseEntity.status(HttpStatus.CREATED).body(tokenService.createToken(savedUser));
         }catch (RuntimeException e) {
             log.error(e.getMessage());
             return ResponseEntity.badRequest().build();

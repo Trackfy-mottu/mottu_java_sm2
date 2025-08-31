@@ -19,11 +19,11 @@ public class UserService {
         return new UserDTO(user.getId(), user.getUsername(), user.getName(), user.getCourt().courtToDTO(), user.getRole());
     }
 
-    public UserDTO createUser(User user) {
-        User existingUser = userRepository.findByUsernameIgnoreCase(user.getUsername()).orElse(null);
-        if (existingUser != null) throw new RuntimeException("Email ou senha inválidos");
-        userRepository.save(user);
-        return new UserDTO(user.getId(), user.getUsername(), user.getName(), user.getCourt().courtToDTO(), user.getRole());
+    public User createUser(User user) {
+            User existingUser = userRepository.findByUsernameIgnoreCase(user.getUsername()).orElse(null);
+            if (existingUser != null) throw new RuntimeException("Email ou senha inválidos");
+            userRepository.save(user);
+            return user;
     }
 
     public UserDTO updateUser(String username, User newUser) {

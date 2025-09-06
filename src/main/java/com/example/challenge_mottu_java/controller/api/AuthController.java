@@ -1,6 +1,5 @@
-package com.example.challenge_mottu_java.controller;
+package com.example.challenge_mottu_java.controller.api;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,7 +26,7 @@ public class AuthController {
         this.tokenService = tokenService;
     }
 
-    @PostMapping("/login")
+    @PostMapping("api/login")
     public Token login(@RequestBody Credentials credentials){
         User user = (User) authService.loadUserByUsername(credentials.username());
         if (!passwordEncoder.matches(credentials.password(), user.getPassword())){

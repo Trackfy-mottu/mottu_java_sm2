@@ -30,6 +30,12 @@ public class BikeService {
         return toDTO(bike);
     }
 
+    public List<BikeDTO> getBikeByAcessCode(String AcessCode){
+        return bikeRepository.findByCourtAcessCode(AcessCode).stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
     public BikeDTO createBike(Bike bike){
         bikeRepository.save(bike);
         courtService.updateBikeCount(bike.getCourt().getAcessCode(), bike.getCourt().getCurrentBikes() + 1);

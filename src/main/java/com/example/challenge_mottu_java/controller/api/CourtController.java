@@ -1,4 +1,4 @@
-package com.example.challenge_mottu_java.controller;
+package com.example.challenge_mottu_java.controller.api;
 
 import com.example.challenge_mottu_java.dto.CourtDTO;
 import com.example.challenge_mottu_java.model.Court;
@@ -18,7 +18,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
 
 @Controller
-@RequestMapping("/court")
+@RequestMapping("api/court")
 public class CourtController {
 
     private final CourtService courtService;

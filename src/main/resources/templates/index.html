@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trackfy - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-black text-green-500 min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<div class="navbar bg-green-700 text-white px-6">
+    <div class="flex-1">
+        <a class="btn btn-ghost normal-case text-2xl font-bold">Trackfy Dashboard</a>
+    </div>
+    <div class="flex-none">
+        <a href="/logout" class="btn btn-outline border-white text-white hover:bg-green-600">Sair</a>
+    </div>
+</div>
+
+<!-- Conteúdo -->
+<div class="flex flex-col items-center p-8 gap-8 flex-1">
+
+    <!-- Card do Court -->
+    <div class="card w-full max-w-4xl bg-neutral text-white shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title text-green-400 text-3xl mb-4">Pátio: <span th:text="${court.name}">Nome do Court</span></h2>
+            <p><strong>Código de Acesso:</strong> <span th:text="${court.acessCode}">ABC123</span></p>
+            <p><strong>Endereço:</strong> <span th:text="${court.address}">Rua Exemplo, 123</span></p>
+            <p><strong>Capacidade Máxima:</strong> <span th:text="${court.maxCapacity}">50</span></p>
+            <p><strong>Bikes Atuais:</strong> <span th:text="${court.currentBikes}">30</span></p>
+        </div>
+    </div>
+
+    <!-- Lista de Bikes -->
+    <div class="w-full max-w-6xl">
+        <h3 class="text-2xl font-bold text-green-400 mb-4">Bikes neste pátio</h3>
+        <div class="overflow-x-auto">
+            <table class="table table-zebra w-full text-white">
+                <thead class="bg-green-700 text-white">
+                <tr>
+                    <th>Placa</th>
+                    <th>Modelo</th>
+                    <th>Status</th>
+                    <th>Localização</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="bike : ${bikes}">
+                    <td th:text="${bike.placa}"></td>
+                    <td th:text="${bike.modelo}"></td>
+                    <td th:text="${bike.status}"></td>
+                    <td th:text="${bike.localizacao}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

@@ -4,6 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.challenge_mottu_java.model.Bike;
 
-public interface BikeRepository extends JpaRepository<Bike, String> {
+import java.util.List;
 
+public interface BikeRepository extends JpaRepository<Bike, String> {
+    List<Bike> findByCourtAcessCode(String AcessCode);
 }

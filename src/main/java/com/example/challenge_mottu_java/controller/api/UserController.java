@@ -1,4 +1,4 @@
-package com.example.challenge_mottu_java.controller;
+package com.example.challenge_mottu_java.controller.api;
 
 import com.example.challenge_mottu_java.dto.UserDTO;
 import com.example.challenge_mottu_java.model.Token;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequestMapping("/user")
+@RequestMapping("api/user")
 public class UserController {
 
     private final UserService userService;

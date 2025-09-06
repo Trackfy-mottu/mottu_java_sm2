@@ -1,9 +1,7 @@
-package com.example.challenge_mottu_java.controller;
+package com.example.challenge_mottu_java.controller.api;
 
 import com.example.challenge_mottu_java.dto.BikeDTO;
-import com.example.challenge_mottu_java.dto.PendingDTO;
 import com.example.challenge_mottu_java.model.Bike;
-import com.example.challenge_mottu_java.repository.BikeRepository;
 
 import com.example.challenge_mottu_java.service.BikeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,7 +12,6 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,11 +19,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @RestController
-@RequestMapping("/bike")
+@RequestMapping("api/bike")
 public class BikeController {
 
     private Logger log = LoggerFactory.getLogger(getClass());

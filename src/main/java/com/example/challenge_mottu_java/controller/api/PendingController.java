@@ -1,4 +1,4 @@
-package com.example.challenge_mottu_java.controller;
+package com.example.challenge_mottu_java.controller.api;
 
 import com.example.challenge_mottu_java.dto.PendingDTO;
 import com.example.challenge_mottu_java.model.Pending;
@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -20,7 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/pendings")
+@RequestMapping("api/pendings")
 public class PendingController {
 
     Logger log = LoggerFactory.getLogger(PendingController.class);

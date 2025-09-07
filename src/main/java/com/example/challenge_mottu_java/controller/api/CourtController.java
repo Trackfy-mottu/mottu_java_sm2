@@ -33,7 +33,7 @@ public class CourtController {
     @GetMapping("/{acessCode}")
     public ResponseEntity<CourtDTO> getCourtByAcessCode(@PathVariable String acessCode) {
         try {
-            return ResponseEntity.ok(courtService.getCourtByAcessCode(acessCode));
+            return ResponseEntity.ok(courtService.getCourtByAcessCode(acessCode).courtToDTO());
         }catch (Exception e){
             log.error(e.getMessage());
             return ResponseEntity.notFound().build();

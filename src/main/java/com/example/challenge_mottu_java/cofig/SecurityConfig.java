@@ -70,7 +70,8 @@ public class SecurityConfig {
                 .securityMatcher("/web/**")
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/login",
+                                "/web/login",
+                                "/web/register",
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",

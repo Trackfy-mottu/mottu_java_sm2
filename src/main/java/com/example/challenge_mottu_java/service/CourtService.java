@@ -23,10 +23,10 @@ public class CourtService {
                 .collect(Collectors.toList());
     }
 
-    public CourtDTO getCourtByAcessCode(String acessCode) {
+    public Court getCourtByAcessCode(String acessCode) {
         Court court = courtRepository.findByAcessCode(acessCode)
                 .orElseThrow(() -> new RuntimeException("Pátio não encontrado!"));
-        return toDTO(court);
+        return court;
     }
 
     public CourtDTO createCourt(Court court) {

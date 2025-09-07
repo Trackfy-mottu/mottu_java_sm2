@@ -20,7 +20,7 @@ public class Court {
 
     @Id
     @Column(name = "acess_code")
-    @NotNull(message = "Todo pátio deve ter um código de acesso")
+    @NotBlank(message = "O nome do pátio é obrigatório")
     @Size(min = 3, max = 150, message = "O código de acesso deve ter entre 3 e 150 caracteres")
     private String acessCode;
 

@@ -3,6 +3,7 @@ package com.example.challenge_mottu_java.service;
 import com.example.challenge_mottu_java.dto.BikeDTO;
 import com.example.challenge_mottu_java.dto.PendingDTO;
 import com.example.challenge_mottu_java.model.Bike;
+import com.example.challenge_mottu_java.model.Court;
 import com.example.challenge_mottu_java.repository.BikeRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -31,14 +32,30 @@ public class BikeService {
     }
 
     public List<BikeDTO> getBikeByAcessCode(String AcessCode){
-        return bikeRepository.findByCourtAcessCode(AcessCode).stream()
+        List<Bike> bikes = bikeRepository.findByCourtAcessCode(AcessCode);
+        if (bikes == null) {
+            return List.of();
+        }
+        return bikes.stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
     public BikeDTO createBike(Bike bike){
+        // Busca o court atual do banco para ter o valor correto de currentBikes
+        var court = courtService.getCourtByAcessCode(bike.getCourt().getAcessCode());
+
+        // Verifica se já atingiu a capacidade máxima
+        if (court.getCurrentBikes() >= court.getMaxCapacity()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Pátio já atingiu a capacidade máxima");
+        }
+
+        bike.setCourt(court);
         bikeRepository.save(bike);
-        courtService.updateBikeCount(bike.getCourt().getAcessCode(), bike.getCourt().getCurrentBikes() + 1);
+
+        // Incrementa o contador de bikes
+        courtService.updateBikeCount(court.getAcessCode(), court.getCurrentBikes() + 1);
+
         return toDTO(bike);
     }
 
@@ -54,7 +71,16 @@ public class BikeService {
     public void deleteBike(String placa){
         Bike bike = bikeRepository.findById(placa)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Moto não encontrada"));
+
+        // Decrementa o contador de bikes
+        var court = bike.getCourt();
+        courtService.updateBikeCount(court.getAcessCode(), Math.max(0, court.getCurrentBikes() - 1));
+
         bikeRepository.delete(bike);
+    }
+
+    public Bike findByPlacaAndCourt(String placa, Court court) {
+        return bikeRepository.findByPlacaAndCourt(placa, court).orElse(null);
     }
 
     private BikeDTO toDTO(Bike bike) {
@@ -75,6 +101,4 @@ public class BikeService {
                 bike.getCourt().courtToDTO(),
                 bike.getLocalizacao());
     }
-
-
 }

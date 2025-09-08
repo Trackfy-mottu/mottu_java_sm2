@@ -1,5 +1,6 @@
 package com.example.challenge_mottu_java.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.example.challenge_mottu_java.Enums.LocationBike;
@@ -35,7 +36,8 @@ public class Bike {
     private StatusBike status;
 
     @OneToMany(mappedBy = "bike", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Pending> pendencias;
+    @Builder.Default
+    private List<Pending> pendencias = new ArrayList<>();
 
     @NotNull(message = "O modelo da moto é obrigatório")
     private ModelsBike modelo;

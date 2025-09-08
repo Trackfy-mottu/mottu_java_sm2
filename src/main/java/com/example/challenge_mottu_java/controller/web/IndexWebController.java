@@ -12,7 +12,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/web")
@@ -33,11 +35,43 @@ public class IndexWebController {
         CourtDTO court = courtservice.getCourtByAcessCode(user.getCourt().getAcessCode())
                 .courtToDTO();
         List<BikeDTO> bikes = bikeService.getBikeByAcessCode(user.getCourt().getAcessCode());
+
+        // Garantir que bikes nunca seja null
+        if (bikes == null) {
+            bikes = List.of(); // Lista vazia ao invés de null
+        }
+
+
+        Map<String, Integer> bikesStats = new HashMap<>();
+        bikesStats.put("prontasParaUso", 0);
+        bikesStats.put("emUso", 0);
+        bikesStats.put("emManutencao", 0);
+        bikesStats.put("descarte", 0);
+
+        // Só processar se houver bikes
+        for (BikeDTO bike : bikes) {
+            if (bike != null && bike.status() != null) {
+                switch (bike.status().name()) {
+                    case "ProntoParaUso":
+                        bikesStats.put("prontasParaUso", bikesStats.get("prontasParaUso") + 1);
+                        break;
+                    case "EmUso":
+                        bikesStats.put("emUso", bikesStats.get("emUso") + 1);
+                        break;
+                    case "Manutencao":
+                        bikesStats.put("emManutencao", bikesStats.get("emManutencao") + 1);
+                        break;
+                    case "Descarte":
+                        bikesStats.put("descarte", bikesStats.get("descarte") + 1);
+                        break;
+                }
+            }
+        }
+
         model.addAttribute("court", court);
         model.addAttribute("bikes", bikes);
         model.addAttribute("user", user);
+        model.addAttribute("bikesStats", bikesStats);
         return "index";
     }
-
-
 }

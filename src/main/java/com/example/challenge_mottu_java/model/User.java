@@ -30,21 +30,24 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
-    @Email
+    @NotBlank(message = "O e-mail do usuário não pode ser nulo")
+    @Email(message = "O e-mail do usuário deve ser válido")
     private String username;
 
-    @NotBlank
+    @NotBlank(message = "A senha do usuário não pode ser nula")
     @Size(min = 1, max = 100)
     private String password;
 
+    @NotBlank(message = "O nome do usuário não pode ser nulo")
     @Size(min = 1, max = 255)
     private String name;
 
+    @NotNull(message = "O pátio do usuário é obrigatório")
     @ManyToOne(optional = false)
     @JoinColumn(name = "court_acess_code", referencedColumnName = "acess_code")
     private Court court;
 
+    @NotNull(message = "O papel do usuário é obrigatório")
     @Enumerated(EnumType.STRING)
     private RolesUser role;
 

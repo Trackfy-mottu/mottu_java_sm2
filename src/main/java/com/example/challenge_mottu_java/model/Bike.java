@@ -9,6 +9,7 @@ import com.example.challenge_mottu_java.Enums.StatusBike;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -23,7 +24,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Bike {
     @Id
-    @NotNull(message = "O número da placa da moto não pode ser nulo")
+    @NotBlank(message = "O número da placa da moto não pode ser nulo")
     private String placa;
 
     @NotNull(message = "O número do chassi da moto não pode ser nulo")

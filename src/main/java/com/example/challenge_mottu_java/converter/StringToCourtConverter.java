@@ -17,6 +17,9 @@ public class StringToCourtConverter implements Converter<String, Court> {
 
     @Override
     public Court convert(String source) {
+        if (source == null || source.isEmpty()) {
+            return null;
+        }
         return courtService.getCourtByAcessCode(source);
     }
 }

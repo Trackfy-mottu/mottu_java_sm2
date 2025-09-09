@@ -49,10 +49,15 @@ public class RegisterFormController {
             return "register-form";
         }
 
-        Court court = courtService.getCourtByAcessCode(user.getCourt().getAcessCode());
-        user.setCourt(court);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userService.createUser(user);
-        return "redirect:/web/login";
+        try {
+            Court court = courtService.getCourtByAcessCode(user.getCourt().getAcessCode());
+            user.setCourt(court);
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            userService.createUser(user);
+            return "redirect:/web/login";
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+            return "redirect:/web/bike/form";
+        }
     }
 }

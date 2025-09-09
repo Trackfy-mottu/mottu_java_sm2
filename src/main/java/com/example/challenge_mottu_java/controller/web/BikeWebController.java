@@ -81,4 +81,10 @@ public class BikeWebController {
         model.addAttribute("court", user.getCourt());
         return "bike-details"; // nome do template Thymeleaf
     }
+
+    @PostMapping("/delete/{id}")
+    public String deleteBike(@PathVariable String id) {
+        bikeService.deleteBike(id);
+        return "redirect:/web";
+    }
 }

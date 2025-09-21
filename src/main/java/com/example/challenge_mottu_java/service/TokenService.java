@@ -16,7 +16,6 @@ import com.example.challenge_mottu_java.model.User;
 
 @Service
 public class TokenService {
-    private Instant expiresAt = LocalDateTime.now().plusMinutes(10).toInstant(ZoneOffset.ofHours(-3));
     private Algorithm algorithm = Algorithm.HMAC256("secret");
 
     public Token createToken(User user){
@@ -24,7 +23,6 @@ public class TokenService {
                 .withSubject(user.getId().toString())
                 .withClaim("email", user.getUsername())
                 .withClaim("role", user.getRole().toString())
-                .withExpiresAt(expiresAt)
                 .sign(algorithm);
 
         return new Token(jwt, user.getUsername(), user.getRole(), user.getCourt().courtToDTO());

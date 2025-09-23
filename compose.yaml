@@ -7,4 +7,4 @@ services:
       - 'POSTGRES_PASSWORD=trackfy'
       - 'POSTGRES_USER=trackfy'
     ports:
-      - '5432:5432'
+      - '5433:5432'

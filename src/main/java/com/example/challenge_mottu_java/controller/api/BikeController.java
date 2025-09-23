@@ -42,6 +42,18 @@ public class BikeController {
         }
     }
 
+    @GetMapping("/court/{acessCode}")
+    public ResponseEntity<java.util.List<BikeDTO>> getBikeByAcessCode(@PathVariable String acessCode) {
+        try {
+            log.info("Buscando motos do pátio com código de acesso: {}", acessCode);
+            java.util.List<BikeDTO> bikes = bikeService.getBikeByAcessCode(acessCode);
+            return ResponseEntity.ok(bikes);
+        }catch (ResponseStatusException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @PostMapping
     @CacheEvict(value = "bike", allEntries = true)
     @Operation(summary = "Cadastrar moto", description = "Insere uma moto", responses = {

@@ -99,6 +99,7 @@ public class BikeService {
                 pendencias,
                 bike.getModelo(),
                 bike.getCourt().courtToDTO(),
-                bike.getLocalizacao());
+                bike.getLocalizacao(),
+                bike.getIdChassi());
     }
 }

@@ -12,6 +12,7 @@ public record BikeDTO(
         List<PendingDTO> pendencias,
         ModelsBike modelo,
         CourtDTO court,
-        LocationBike localizacao) {
+        LocationBike localizacao,
+        Long idChassi) {
 
 }

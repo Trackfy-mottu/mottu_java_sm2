@@ -1,5 +1,6 @@
 package com.example.challenge_mottu_java.service;
 
+import com.example.challenge_mottu_java.Enums.StatusPending;
 import com.example.challenge_mottu_java.dto.PendingDTO;
 import com.example.challenge_mottu_java.model.Pending;
 import com.example.challenge_mottu_java.repository.PendingRepository;
@@ -36,6 +37,17 @@ public class PendingService {
         Pending oldPending = pendingRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pendência não encontrada"));
         pending.setId(oldPending.getId());
         return toDTO(pendingRepository.save(pending));
+    }
+
+    public PendingDTO updatePendingById(Long id, Long number, String description, String status) {
+        Pending existingPending = pendingRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pendência não encontrada"));
+
+        existingPending.setNumber(number);
+        existingPending.setDescription(description);
+        existingPending.setStatus(StatusPending.valueOf(status));
+
+        return toDTO(pendingRepository.save(existingPending));
     }
 
     private PendingDTO toDTO(Pending pending) {

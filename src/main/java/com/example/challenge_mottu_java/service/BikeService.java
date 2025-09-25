@@ -42,10 +42,8 @@ public class BikeService {
     }
 
     public BikeDTO createBike(Bike bike){
-        // Busca o court atual do banco para ter o valor correto de currentBikes
         var court = courtService.getCourtByAcessCode(bike.getCourt().getAcessCode());
 
-        // Verifica se já atingiu a capacidade máxima
         if (court.getCurrentBikes() >= court.getMaxCapacity()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Pátio já atingiu a capacidade máxima");
         }
@@ -53,26 +51,29 @@ public class BikeService {
         bike.setCourt(court);
         bikeRepository.save(bike);
 
-        // Incrementa o contador de bikes
         courtService.updateBikeCount(court.getAcessCode(), court.getCurrentBikes() + 1);
 
         return toDTO(bike);
     }
 
-    public BikeDTO updateBike(String placa, @RequestBody @Valid Bike bike){
-        bikeRepository.findById(placa)
+    public BikeDTO updateBike(String placa, @RequestBody @Valid Bike bikeAtualizada){
+        Bike bikeExistente = bikeRepository.findById(placa)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Moto não encontrada"));
-        bike.setPlaca(placa);
-        bikeRepository.save(bike);
-        return toDTO(bike);
 
+        bikeExistente.setIdChassi(bikeAtualizada.getIdChassi());
+        bikeExistente.setLocalizacao(bikeAtualizada.getLocalizacao());
+        bikeExistente.setStatus(bikeAtualizada.getStatus());
+        bikeExistente.setModelo(bikeAtualizada.getModelo());
+        bikeExistente.setCourt(bikeAtualizada.getCourt());
+
+        Bike bikeSalva = bikeRepository.save(bikeExistente);
+        return toDTO(bikeSalva);
     }
 
     public void deleteBike(String placa){
         Bike bike = bikeRepository.findById(placa)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Moto não encontrada"));
 
-        // Decrementa o contador de bikes
         var court = bike.getCourt();
         courtService.updateBikeCount(court.getAcessCode(), Math.max(0, court.getCurrentBikes() - 1));
 

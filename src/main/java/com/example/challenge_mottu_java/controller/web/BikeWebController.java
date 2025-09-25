@@ -3,6 +3,7 @@ package com.example.challenge_mottu_java.controller.web;
 import com.example.challenge_mottu_java.model.Bike;
 import com.example.challenge_mottu_java.model.User;
 import com.example.challenge_mottu_java.service.BikeService;
+import com.example.challenge_mottu_java.service.PendingService;
 import jakarta.validation.Valid;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -11,10 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -23,10 +21,12 @@ public class BikeWebController {
 
     private final BikeService bikeService;
     private final MessageSource messageSource;
+    private final PendingService pendingService;
 
-    public BikeWebController(BikeService bikeService, MessageSource messageSource) {
+    public BikeWebController(BikeService bikeService, MessageSource messageSource, PendingService pendingService) {
         this.bikeService = bikeService;
         this.messageSource = messageSource;
+        this.pendingService = pendingService;
     }
 
     @GetMapping("/form")
@@ -86,5 +86,80 @@ public class BikeWebController {
     public String deleteBike(@PathVariable String id) {
         bikeService.deleteBike(id);
         return "redirect:/web";
+    }
+
+    @GetMapping("/edit/{placa}")
+    public String editForm(@PathVariable("placa") String placa, Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+
+        Bike bike = bikeService.findByPlacaAndCourt(placa, user.getCourt());
+        if (bike == null) {
+            model.addAttribute("error", "Moto não encontrada neste pátio.");
+            return "redirect:/web";
+        }
+
+        model.addAttribute("bike", bike);
+        model.addAttribute("court", user.getCourt());
+        return "bike-edit";
+    }
+
+    @PostMapping("/edit/{placa}")
+    public String updateBike(@PathVariable("placa") String placa, @Valid Bike bike,
+                             BindingResult result, RedirectAttributes redirect, Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+
+        if (result.hasErrors()) {
+            Bike existingBike = bikeService.findByPlacaAndCourt(placa, user.getCourt());
+            model.addAttribute("bike", existingBike);
+            model.addAttribute("court", user.getCourt());
+            return "bike-edit";
+        }
+
+        try {
+            bike.setPlaca(placa);
+            bike.setCourt(user.getCourt());
+            bikeService.updateBike(placa, bike);
+
+            var message = messageSource.getMessage("bike.update.success", null, LocaleContextHolder.getLocale());
+            redirect.addFlashAttribute("message", message != null ? message : "Moto atualizada com sucesso!");
+            return "redirect:/web/bike/" + placa;
+        } catch (Exception e) {
+            redirect.addFlashAttribute("error", e.getMessage());
+            return "redirect:/web/bike/edit/" + placa;
+        }
+    }
+
+    @PostMapping("/pending/update/{pendingId}")
+    public String updatePending(@PathVariable("pendingId") Long pendingId,
+                                @RequestParam("number") Long number,
+                                @RequestParam("description") String description,
+                                @RequestParam("status") String status,
+                                @RequestParam("bikePlaca") String bikePlaca,
+                                RedirectAttributes redirect) {
+        try {
+            pendingService.updatePendingById(pendingId, number, description, status);
+
+            redirect.addFlashAttribute("message", "Pendência atualizada com sucesso!");
+            return "redirect:/web/bike/edit/" + bikePlaca;
+        } catch (Exception e) {
+            redirect.addFlashAttribute("error", e.getMessage());
+            return "redirect:/web/bike/edit/" + bikePlaca;
+        }
+    }
+
+    @PostMapping("/pending/delete/{pendingId}")
+    public String deletePending(@PathVariable("pendingId") Long pendingId,
+                                @RequestParam("bikePlaca") String bikePlaca,
+                                RedirectAttributes redirect) {
+        try {
+            pendingService.deletePending(pendingId);
+            redirect.addFlashAttribute("message", "Pendência removida com sucesso!");
+            return "redirect:/web/bike/edit/" + bikePlaca;
+        } catch (Exception e) {
+            redirect.addFlashAttribute("error", e.getMessage());
+            return "redirect:/web/bike/edit/" + bikePlaca;
+        }
     }
 }

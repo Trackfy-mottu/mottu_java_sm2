@@ -36,9 +36,8 @@ public class IndexWebController {
                 .courtToDTO();
         List<BikeDTO> bikes = bikeService.getBikeByAcessCode(user.getCourt().getAcessCode());
 
-        // Garantir que bikes nunca seja null
         if (bikes == null) {
-            bikes = List.of(); // Lista vazia ao invés de null
+            bikes = List.of();
         }
 
 
@@ -48,7 +47,6 @@ public class IndexWebController {
         bikesStats.put("emManutencao", 0);
         bikesStats.put("descarte", 0);
 
-        // Só processar se houver bikes
         for (BikeDTO bike : bikes) {
             if (bike != null && bike.status() != null) {
                 switch (bike.status().name()) {

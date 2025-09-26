@@ -74,10 +74,10 @@ public class BikeService {
         Bike bike = bikeRepository.findById(placa)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Moto não encontrada"));
 
+        bikeRepository.delete(bike);
+
         var court = bike.getCourt();
         courtService.updateBikeCount(court.getAcessCode(), Math.max(0, court.getCurrentBikes() - 1));
-
-        bikeRepository.delete(bike);
     }
 
     public Bike findByPlacaAndCourt(String placa, Court court) {

@@ -5,39 +5,41 @@ import com.example.challenge_mottu_java.model.Token;
 import com.example.challenge_mottu_java.model.User;
 import com.example.challenge_mottu_java.service.TokenService;
 import com.example.challenge_mottu_java.service.UserService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.Parameter;
+
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@Controller
+@RestController
 @RequestMapping("api/user")
 public class UserController {
 
     private final UserService userService;
-    private final MessageSource messageSource;
     private final TokenService tokenService;
     private final PasswordEncoder passwordEncoder;
-    Logger log = LoggerFactory.getLogger(PendingController.class);
+    Logger log = LoggerFactory.getLogger(UserController.class);
 
-    public UserController(UserService userService, MessageSource messageSource, TokenService tokenService, PasswordEncoder passwordEncoder) {
+    public UserController(UserService userService, TokenService tokenService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
-        this.messageSource = messageSource;
         this.tokenService = tokenService;
         this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping("/{username}")
-    public ResponseEntity<UserDTO> getUser(Model model, @PathVariable String username) {
+    @Operation(summary = "Buscar usuário", description = "Retorna um usuário pelo username", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponse(responseCode = "200", description = "Usuário encontrado")
+    @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+    public ResponseEntity<UserDTO> getUser(@Parameter(description = "Email do usuário") @PathVariable String username) {
         try {
             UserDTO user = userService.getUserByUsername(username);
             return ResponseEntity.ok(user);
@@ -47,12 +49,10 @@ public class UserController {
         }
     }
 
-    @GetMapping("/form")
-    public String form(User user){
-        return "form";
-    }
-
     @PostMapping
+    @Operation(summary = "Cadastrar usuário", description = "Cria um novo usuário e retorna token JWT", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponse(responseCode = "201", description = "Usuário criado com sucesso")
+    @ApiResponse(responseCode = "400", description = "Dados inválidos")
     public ResponseEntity<Token> create(@RequestBody @Valid User user) {
         try{
             user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -64,17 +64,10 @@ public class UserController {
         }
     }
 
-    @PostMapping("/form")
-    public String save(@Valid User user, BindingResult result, RedirectAttributes redirect){
-        if(result.hasErrors()) return "form";
-        userService.createUser(user);
-        var message = messageSource.getMessage("task.create.success", null, LocaleContextHolder.getLocale());
-        redirect.addFlashAttribute("message", message);
-        return "redirect:/task";
-    }
-
     @PutMapping("/{username}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable String username, @RequestBody @Valid User newUser) {
+    @Operation(summary = "Atualizar usuário", description = "Atualiza os dados de um usuário existente", security = @SecurityRequirement(name = "bearerAuth"))
+    public ResponseEntity<UserDTO> updateUser(@Parameter(description = "Email do usuário") @PathVariable String username,
+                                              @RequestBody @Valid User newUser) {
         try {
             UserDTO user =  userService.updateUser(username, newUser);
             return ResponseEntity.ok(user);
@@ -85,7 +78,9 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id){
+    @Operation(summary = "Remover usuário", description = "Remove um usuário existente", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponse(responseCode = "204", description = "Usuário removido com sucesso")
+    public ResponseEntity<Void> deleteUser(@Parameter(description = "ID do usuário") @PathVariable Long id){
         try {
             userService.deleteUser(id);
             return ResponseEntity.noContent().build();

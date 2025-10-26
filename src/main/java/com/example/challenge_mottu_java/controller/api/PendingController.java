@@ -6,7 +6,9 @@ import com.example.challenge_mottu_java.service.PendingService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.Parameter;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,16 +32,16 @@ public class PendingController {
     }
 
     @GetMapping
+    @Operation(summary = "Listar pendências", description = "Retorna todas as pendências paginadas")
     public ResponseEntity<Page<PendingDTO>> getAllPendings(Pageable pageable) {
         return ResponseEntity.ok(pendingService.getAllPendings(pageable));
     }
 
     @PostMapping
     @CacheEvict(value = "pendings", allEntries = true)
-    @Operation(summary = "Cadastrar pendência", description = "Cria uma nova pendência", responses = {
-            @ApiResponse(responseCode = "201"),
-            @ApiResponse(responseCode = "400"),
-    })
+    @Operation(summary = "Cadastrar pendência", description = "Cria uma nova pendência", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponse(responseCode = "201", description = "Pendência criada com sucesso")
+    @ApiResponse(responseCode = "400", description = "Dados inválidos")
     public ResponseEntity<PendingDTO> create(@RequestBody Pending pending) {
         try {
             log.info("Criando nova pendência...");
@@ -51,24 +53,11 @@ public class PendingController {
         }
     }
 
-
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @CacheEvict(value = "pendings", allEntries = true)
-    public ResponseEntity<Void> destroy(@PathVariable Long id) {
-        try {
-            log.info("Deletando pendência {}", id);
-            pendingService.deletePending(id);
-            return ResponseEntity.noContent().build();
-        }catch (RuntimeException e){
-            log.error(e.getMessage());
-            return ResponseEntity.notFound().build();
-        }
-    }
-
     @PutMapping("/{id}")
     @CacheEvict(value = "pendings", allEntries = true)
-    public ResponseEntity<PendingDTO> update(@PathVariable Long id, @RequestBody Pending pending) {
+    @Operation(summary = "Atualizar pendência", description = "Atualiza uma pendência existente", security = @SecurityRequirement(name = "bearerAuth"))
+    public ResponseEntity<PendingDTO> update(@Parameter(description = "ID da pendência") @PathVariable Long id,
+                                             @RequestBody Pending pending) {
         try {
             log.info("Atualizando pendência {}", id);
             PendingDTO pendingDTO = pendingService.updatePending(id, pending);
@@ -79,4 +68,19 @@ public class PendingController {
         }
     }
 
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @CacheEvict(value = "pendings", allEntries = true)
+    @Operation(summary = "Remover pendência", description = "Remove uma pendência existente", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponse(responseCode = "204", description = "Pendência removida com sucesso")
+    public ResponseEntity<Void> destroy(@Parameter(description = "ID da pendência") @PathVariable Long id) {
+        try {
+            log.info("Deletando pendência {}", id);
+            pendingService.deletePending(id);
+            return ResponseEntity.noContent().build();
+        }catch (RuntimeException e){
+            log.error(e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

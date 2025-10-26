@@ -2,22 +2,25 @@ package com.example.challenge_mottu_java.controller.api;
 
 import com.example.challenge_mottu_java.dto.BikeDTO;
 import com.example.challenge_mottu_java.model.Bike;
-
 import com.example.challenge_mottu_java.service.BikeService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.Parameter;
 
-import jakarta.validation.Valid;
-
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
+import jakarta.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("api/bike")
@@ -31,9 +34,11 @@ public class BikeController {
     }
 
     @GetMapping("/{placa}")
-    public ResponseEntity<BikeDTO> getBikeByPlaca(@PathVariable String placa) {
+    @Operation(summary = "Buscar moto por placa", description = "Retorna uma moto com base na placa fornecida", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponse(responseCode = "200", description = "Moto encontrada")
+    @ApiResponse(responseCode = "404", description = "Moto não encontrada")
+    public ResponseEntity<BikeDTO> getBikeByPlaca(@Parameter(description = "Placa da moto") @PathVariable String placa) {
         try {
-            log.info("Buscando moto com placa: {}", placa);
             BikeDTO bikeDTO = bikeService.getBikeByPlaca(placa);
             return ResponseEntity.ok(bikeDTO);
         }catch (ResponseStatusException e) {
@@ -43,10 +48,10 @@ public class BikeController {
     }
 
     @GetMapping("/court/{acessCode}")
-    public ResponseEntity<java.util.List<BikeDTO>> getBikeByAcessCode(@PathVariable String acessCode) {
+    @Operation(summary = "Buscar motos por pátio", description = "Retorna todas as motos cadastradas em um pátio específico", security = @SecurityRequirement(name = "bearerAuth"))
+    public ResponseEntity<List<BikeDTO>> getBikeByAcessCode(@Parameter(description = "Código de acesso do pátio") @PathVariable String acessCode) {
         try {
-            log.info("Buscando motos do pátio com código de acesso: {}", acessCode);
-            java.util.List<BikeDTO> bikes = bikeService.getBikeByAcessCode(acessCode);
+            List<BikeDTO> bikes = bikeService.getBikeByAcessCode(acessCode);
             return ResponseEntity.ok(bikes);
         }catch (ResponseStatusException e) {
             log.error(e.getMessage());
@@ -56,13 +61,11 @@ public class BikeController {
 
     @PostMapping
     @CacheEvict(value = "bike", allEntries = true)
-    @Operation(summary = "Cadastrar moto", description = "Insere uma moto", responses = {
-            @ApiResponse(responseCode = "201"),
-            @ApiResponse(responseCode = "400"),
-    })
+    @Operation(summary = "Cadastrar moto", description = "Insere uma nova moto no sistema", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponse(responseCode = "201", description = "Moto criada com sucesso")
+    @ApiResponse(responseCode = "400", description = "Dados inválidos")
     public ResponseEntity<BikeDTO> create(@RequestBody @Valid Bike bike) {
         try {
-            log.info("Cadastrando moto: ", bike.getPlaca());
             BikeDTO bikeDTO = bikeService.createBike(bike);
             return ResponseEntity.status(HttpStatus.CREATED).body(bikeDTO);
         }catch (ResponseStatusException e) {
@@ -71,28 +74,29 @@ public class BikeController {
         }
     }
 
-    @DeleteMapping("/{placa}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseEntity<Void> destroy(@PathVariable String placa) {
-        try {
-            log.info("Apagando moto {}", placa);
-            bikeService.deleteBike(placa);
-            return ResponseEntity.noContent().build();
-        }catch (ResponseStatusException e) {
-            log.error(e.getMessage());
-            return ResponseEntity.noContent().build();
-        }
-    }
-
     @PutMapping("/{placa}")
-    public ResponseEntity<BikeDTO> update(@PathVariable String placa, @RequestBody @Valid Bike bike) {
+    @Operation(summary = "Atualizar moto", description = "Atualiza os dados de uma moto existente", security = @SecurityRequirement(name = "bearerAuth"))
+    public ResponseEntity<BikeDTO> update(@Parameter(description = "Placa da moto") @PathVariable String placa, @RequestBody @Valid Bike bike) {
         try {
-            log.info("Atualizando moto: {}", placa);
             BikeDTO bikeDTO = bikeService.updateBike(placa, bike);
             return ResponseEntity.ok(bikeDTO);
         }catch (ResponseStatusException e) {
             log.error(e.getMessage());
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/{placa}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Remover moto", description = "Remove uma moto cadastrada", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponse(responseCode = "204", description = "Moto removida com sucesso")
+    public ResponseEntity<Void> destroy(@Parameter(description = "Placa da moto") @PathVariable String placa) {
+        try {
+            bikeService.deleteBike(placa);
+            return ResponseEntity.noContent().build();
+        }catch (ResponseStatusException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.noContent().build();
         }
     }
 }

@@ -1,5 +1,7 @@
 package com.example.challenge_mottu_java.controller.api;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -29,6 +31,10 @@ public class AuthController {
         this.tokenService = tokenService;
     }
 
+    @Operation(summary = "Login do usuário", description = "Autentica usuário e retorna token JWT com informações do usuário e do pátio")
+    @ApiResponse(responseCode = "200", description = "Login realizado com sucesso")
+    @ApiResponse(responseCode = "401", description = "Credenciais incorretas")
+    @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     @PostMapping("api/login")
     public Token login(@RequestBody Credentials credentials){
         try {

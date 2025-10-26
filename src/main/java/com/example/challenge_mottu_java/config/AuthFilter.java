@@ -1,4 +1,4 @@
-package com.example.challenge_mottu_java.cofig;
+package com.example.challenge_mottu_java.config;
 
 import java.io.IOException;
 

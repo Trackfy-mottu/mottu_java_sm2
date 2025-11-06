@@ -25,25 +25,41 @@ repositories {
 }
 
 dependencies {
+    // ===== SPRING =====
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'com.auth0:java-jwt:4.5.0'
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+    // ===== DATABASE / MIGRATION =====
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-database-postgresql'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
+    runtimeOnly 'org.postgresql:postgresql:42.7.3'
+
+    // ===== JWT =====
+    implementation 'com.auth0:java-jwt:4.5.0'
+
+    // ===== OPENAPI (Swagger UI) =====
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6'
-    implementation 'org.postgresql:postgresql:42.7.3'
+
+    // ===== LOMBOK =====
     compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // ===== DEVTOOLS =====
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
-    runtimeOnly 'org.postgresql:postgresql'
-    annotationProcessor 'org.projectlombok:lombok'
+
+    // ===== TESTES =====
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+
+    // TESTES RESTASSURED:
+    testImplementation 'io.rest-assured:rest-assured:5.5.0'
+    testImplementation 'io.rest-assured:json-path:5.5.0'
+    testImplementation 'io.rest-assured:xml-path:5.5.0'
+    testImplementation 'org.hamcrest:hamcrest:2.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
